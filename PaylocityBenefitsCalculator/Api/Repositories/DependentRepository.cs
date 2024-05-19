@@ -3,7 +3,7 @@ using Api.Models;
 
 namespace Api.Repositories
 {
-    public class DependentRepository : IRepository<Dependent>
+    public class DependentRepository : IDependentRepository
     {
         /*
          * A DB context would probably go here, but I'm using the provided employee list. 
