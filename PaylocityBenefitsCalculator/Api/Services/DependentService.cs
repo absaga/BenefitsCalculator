@@ -1,5 +1,4 @@
 ﻿using Api.Dtos.Dependent;
-using Api.Models;
 using Api.Repositories;
 using Api.Services.Mapping;
 
