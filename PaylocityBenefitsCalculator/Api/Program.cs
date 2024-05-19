@@ -15,6 +15,7 @@ builder.Services.AddScoped<IRepository<Employee>, EmployeeRepository>();
 builder.Services.AddScoped<IDependentRepository, DependentRepository>();
 builder.Services.AddScoped<IMapperService, MapperService>();
 builder.Services.AddScoped<IDependentService, DependentService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
