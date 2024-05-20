@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace ApiTests.UnitTests
+namespace ApiTests.SalaryDeductionUnitTests
 {
     public class BaseDependentCost : RuleTest
     {
@@ -27,7 +27,7 @@ namespace ApiTests.UnitTests
 
             var deduction = rule.CalculateYearlyDeduction(employee);
 
-            Assert.Equal((SalaryDeductionSettings.BaseDependentCost * dependentAmount) * 12, deduction.Amount);
+            Assert.Equal(SalaryDeductionSettings.BaseDependentCost * dependentAmount * 12, deduction.Amount);
             Assert.Equal(PaymentFrequency.Yearly, deduction.Frequency);
         }
 

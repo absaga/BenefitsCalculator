@@ -2,7 +2,7 @@
 using Api.Rules.SalaryDeduction;
 using Xunit;
 
-namespace ApiTests.UnitTests
+namespace ApiTests.SalaryDeductionUnitTests
 {
     public class BaseBenefitCostRuleTests : RuleTest
     {

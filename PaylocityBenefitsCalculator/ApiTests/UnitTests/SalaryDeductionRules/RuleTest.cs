@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using System;
 
-namespace ApiTests
+namespace ApiTests.SalaryDeductionUnitTests
 {
     public class RuleTest
     {

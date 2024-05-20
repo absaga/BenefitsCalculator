@@ -4,7 +4,7 @@ using Api.Rules.SalaryDeduction;
 using System;
 using Xunit;
 
-namespace ApiTests.UnitTests
+namespace ApiTests.SalaryDeductionUnitTests
 {
     public class HighSalaryDeductionTest : RuleTest
     {
@@ -18,7 +18,7 @@ namespace ApiTests.UnitTests
             }
             else
             {
-                randomDecimal = (decimal)(Random.NextDouble()) * SalaryDeductionSettings.HighSalaryThreshold;
+                randomDecimal = (decimal)Random.NextDouble() * SalaryDeductionSettings.HighSalaryThreshold;
             }
 
             return randomDecimal;
