@@ -9,6 +9,6 @@ namespace Api.Services
          * 
          */
 
-        List<Deduction> CalculateYearlyDeduction(Employee employee);
+        Task<List<Deduction>> CalculateYearlyDeduction(Employee employee);
     }
 }

@@ -15,7 +15,7 @@ namespace Api.Services
         {
             _salaryDeductionRules = salaryDeductionRules;
         }
-        public List<Deduction> CalculateYearlyDeduction(Employee employee)
+        public async Task<List<Deduction>> CalculateYearlyDeduction(Employee employee)
         {
             var result = new List<Deduction>();
 
