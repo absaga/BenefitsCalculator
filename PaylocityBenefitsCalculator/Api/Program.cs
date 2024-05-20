@@ -27,6 +27,9 @@ builder.Services.Configure<SalaryDeductionSettings>(builder.Configuration.GetSec
  *
  */
 builder.Services.AddScoped<ISalaryDeductionRule, BaseBenefitCostRule>();
+builder.Services.AddScoped<ISalaryDeductionRule, BaseDependentCostRule>();
+builder.Services.AddScoped<ISalaryDeductionRule, OverFiftyDependentFeeRule>();
+builder.Services.AddScoped<ISalaryDeductionRule, HighSalaryFeeRule>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
