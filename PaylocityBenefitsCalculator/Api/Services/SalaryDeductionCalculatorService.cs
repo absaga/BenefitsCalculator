@@ -10,8 +10,8 @@ namespace Api.Services
      */
     public class SalaryDeductionCalculatorService : ISalaryDeductionCalculatorService
     {
-        private readonly List<ISalaryDeductionRule> _salaryDeductionRules;
-        public SalaryDeductionCalculatorService(List<ISalaryDeductionRule> salaryDeductionRules)
+        private readonly IEnumerable<ISalaryDeductionRule> _salaryDeductionRules;
+        public SalaryDeductionCalculatorService(IEnumerable<ISalaryDeductionRule> salaryDeductionRules)
         {
             _salaryDeductionRules = salaryDeductionRules;
         }
