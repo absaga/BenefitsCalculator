@@ -13,14 +13,27 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace ApiTests.UnitTests.Services
+namespace ApiTests.UnitTests
 {
     public class PaycheckCalculatorServiceTests
     {
+
+        /*
+         * These are some tests for the paycheck calculation service.
+         * In a real app there would be many different tests but for now I'm thinking testing two main things:
+         * 
+         * 1. All 26 deductions add up to the correct yearly deduction amount
+         * 2. All 26 paycheck amounts add up to the yearly salary
+         * 
+         * Since each rule has been tested individually to generate the correct deduction amount, I'm only testing the service here.
+         * But a real life app would also need deep integration tests with the paycheck services.
+         * 
+         */
+
         private readonly Mock<ISalaryDeductionCalculatorService> _salaryDeductionCalculatorServiceMock;
         private readonly Mock<IEmployeeService> _employeeServiceMock;
-        //private readonly Mock<IMapperService> _mapperServiceMock;
         private readonly Mock<IMapperService> _mapperServiceMock;
+        // since the service returns using some mapper methods I will have to config Mock to use the real mapper
         private readonly IMapperService _mapperService;
         private readonly IOptions<SalarySettings> _salarySettings;
         private readonly PaycheckCalculatorService _paycheckCalculatorService;
@@ -29,11 +42,11 @@ namespace ApiTests.UnitTests.Services
         public PaycheckCalculatorServiceTests()
         {
             _salaryDeductionCalculatorServiceMock = new Mock<ISalaryDeductionCalculatorService>();
-            // CallBase is set to true to call the actual implementation of the since the service returns using these methods.
             _employeeServiceMock = new Mock<IEmployeeService> { CallBase = true };
             _mapperService = new MapperService();
             _mapperServiceMock = new Mock<IMapperService>();
             _salarySettings = Options.Create(new SalarySettings { YearlyPaychecksAmount = 26 });
+
             _paycheckCalculatorService = new PaycheckCalculatorService(
                 _salaryDeductionCalculatorServiceMock.Object,
                 _employeeServiceMock.Object,
@@ -47,12 +60,13 @@ namespace ApiTests.UnitTests.Services
         [Fact]
         public async Task CalculatesCorrectPaycheckDeductionsForEmployeeWithoutDependents()
         {
-            var employeeSalary = Math.Round((decimal)(_random.NextDouble() * 150000 + 60000), 2); // Random salary between 60,000 and 150,000
+            // Random salary between 60,000 and 150,000
+            var employeeSalary = Math.Round((decimal)(_random.NextDouble() * 150000 + 60000), 2);
 
             var employee = new Employee
             {
                 Id = 1,
-                FirstName = "Abdiel",
+                FirstName = "Abdiel", // it's me! hi! Base16: 68697265206d6521
                 LastName = "Sanchez",
                 Salary = employeeSalary,
                 Dependents = new List<Dependent>()
@@ -67,20 +81,23 @@ namespace ApiTests.UnitTests.Services
                 Dependents = new List<GetDependentDto>()
             };
 
-            // I'll only test the base benefits fee on this one.
-
+            // These are some random deductions
             var yearlyDeductions = new List<Deduction>
             {
-                new Deduction { Description = "Base Benefits Fee", Amount = 12000 }
+                new Deduction { Description = "Base Benefits Fee", Amount = 12000 },
+                new Deduction { Description = "High Salary Fee", Amount = (decimal)_random.NextDouble() * (12345.67m - 1234) + 1234 },
+                new Deduction { Description = "Awesome Fee", Amount = (decimal)_random.NextDouble() * (12345.67m - 1234) + 5432 }
             };
 
+            // The real service uses a few mapper methods so we'll mock those.
             _mapperServiceMock.Setup(s => s.MapDtoToEmployee(employeeDto)).Returns(employee);
+            _employeeServiceMock.Setup(s => s.GetByIdAsync(employee.Id)).ReturnsAsync(employeeDto);
+            _salaryDeductionCalculatorServiceMock.Setup(s => s.CalculateYearlyDeduction(employee)).ReturnsAsync(yearlyDeductions);
+
+            //Make mock use the real mapper service for mapping the employee paychecks to dto
             _mapperServiceMock.Setup(m => m.MapEmployeePaychecksToDto(It.IsAny<Employee>(), It.IsAny<List<Paycheck>>()))
                               .Returns<Employee, List<Paycheck>>((emp, paychecks) => _mapperService.MapEmployeePaychecksToDto(emp, paychecks));
 
-            _employeeServiceMock.Setup(s => s.GetByIdAsync(employee.Id)).ReturnsAsync(employeeDto);
-            _salaryDeductionCalculatorServiceMock.Setup(s => s.CalculateYearlyDeduction(employee)).ReturnsAsync(yearlyDeductions);
-            //_mapperServiceMock.Setup(s => s.MapDtoToEmployee(employeeDto)).Returns(employee);
 
             var result = await _paycheckCalculatorService.GetYearlyPaychecksByIdAsync(employee.Id);
 
@@ -100,72 +117,5 @@ namespace ApiTests.UnitTests.Services
             Assert.Equal(employeeSalary, totalGrossSalary);
             Assert.Equal(yearlyDeductions.First().Amount, totalBaseBenefitDeductions);
         }
-
-        //[Fact]
-        //public async Task CalculatesCorrectPaycheckDeductionsForEmployeeWithDependents()
-        //{
-        //    var employeeSalary = Math.Round((decimal)(_random.NextDouble() * 120000 + 30000), 2); // Random salary between 30,000 and 150,000
-
-        //    var employee = new Employee
-        //    {
-        //        Id = 2,
-        //        Salary = employeeSalary,
-        //        Dependents = new List<Dependent>
-        //        {
-        //            new Dependent { Id = 1, FirstName = "John", LastName = "Doe", DateOfBirth = new DateTime(1990, 1, 1) }
-        //        }
-        //    };
-
-        //    var employeeDto = new GetEmployeeDto
-        //    {
-        //        Id = employee.Id,
-        //        Salary = employee.Salary,
-        //        Dependents = employee.Dependents.Select(d => new GetDependentDto
-        //        {
-        //            Id = d.Id,
-        //            FirstName = d.FirstName,
-        //            LastName = d.LastName,
-        //            DateOfBirth = d.DateOfBirth
-        //        }).ToList()
-        //    };
-
-        //    var yearlyDeductions = new List<Deduction>
-        //    {
-        //        new Deduction { Description = "Base Benefits Fee", Amount = 12000 },
-        //        new Deduction { Description = "Dependent Fee", Amount = 7200 } // e.g., $600 per month for 12 months
-        //    };
-
-        //    _employeeServiceMock.Setup(s => s.GetByIdAsync(employee.Id)).ReturnsAsync(employeeDto);
-        //    _salaryDeductionCalculatorServiceMock.Setup(s => s.CalculateYearlyDeduction(employee)).ReturnsAsync(yearlyDeductions);
-        //    _mapperServiceMock.Setup(s => s.MapDtoToEmployee(employeeDto)).Returns(employee);
-
-        //    var result = await _paycheckCalculatorService.GetYearlyPaychecksByIdAsync(employee.Id);
-
-        //    Assert.Equal(26, result.Paychecks.Count);
-
-        //    decimal totalGrossSalary = 0;
-        //    decimal totalBaseBenefitDeductions = 0;
-        //    decimal totalDependentDeductions = 0;
-
-        //    foreach (var paycheck in result.Paychecks)
-        //    {
-        //        totalGrossSalary += paycheck.GrossSalary;
-        //        totalBaseBenefitDeductions += paycheck.Deductions
-        //            .Where(d => d.Description == "Base Benefits Fee")
-        //            .Sum(d => d.Amount);
-        //        totalDependentDeductions += paycheck.Deductions
-        //            .Where(d => d.Description == "Dependent Fee")
-        //            .Sum(d => d.Amount);
-        //    }
-
-        //    // Assert total salary matches
-        //    Assert.Equal(employeeSalary, totalGrossSalary);
-
-        //    // Assert total base benefit deductions match
-        //    Assert.Equal(yearlyDeductions.First(d => d.Description == "Base Benefits Fee").Amount, totalBaseBenefitDeductions);
-
-        //    // Assert total dependent deductions match
-        //    Assert.Equal(yearlyDeductions.First(d => d.Description == "Dependent Fee").Amount, totalDependentDeductions);
-        //}
     }
 }
