@@ -2,6 +2,7 @@ using Api.Configuration;
 using Api.Data;
 using Api.Models;
 using Api.Repositories;
+using Api.Rules.SalaryDeduction;
 using Api.Services;
 using Api.Services.Mapping;
 using Microsoft.OpenApi.Models;
@@ -20,6 +21,12 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 builder.Services.Configure<SalarySettings>(builder.Configuration.GetSection("SalarySettings"));
 builder.Services.Configure<SalaryDeductionSettings>(builder.Configuration.GetSection("SalaryDeductionSettings"));
+
+/* 
+ * I'm registering the salary deduction rules here individually, but on a real app I would do it through other means
+ *
+ */
+builder.Services.AddScoped<ISalaryDeductionRule, BaseBenefitCostRule>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
