@@ -1,3 +1,4 @@
+using Api.Configuration;
 using Api.Data;
 using Api.Models;
 using Api.Repositories;
@@ -16,6 +17,9 @@ builder.Services.AddScoped<IDependentRepository, DependentRepository>();
 builder.Services.AddScoped<IMapperService, MapperService>();
 builder.Services.AddScoped<IDependentService, DependentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+builder.Services.Configure<SalarySettings>(builder.Configuration.GetSection("SalarySettings"));
+builder.Services.Configure<SalaryDeductionSettings>(builder.Configuration.GetSection("SalaryDeductionSettings"));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
